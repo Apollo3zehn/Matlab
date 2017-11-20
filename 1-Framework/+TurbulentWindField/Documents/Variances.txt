@@ -1,0 +1,61 @@
+0:
+Variance u-component: 2.1326 m/s
+Variance v-component: 1.8529 m/s
+Variance w-component: 0.6501 m/s
+
+1:
+Variance u-component: 2.3225 m/s
+Variance v-component: 1.3001 m/s
+Variance w-component: 2.6058 m/s
+
+2: 
+Variance u-component: 2.7215 m/s
+Variance v-component: 0.8753 m/s
+Variance w-component: 2.1844 m/s
+
+3: 
+Variance u-component: 3.1622 m/s
+Variance v-component: 0.6259 m/s
+Variance w-component: 1.4178 m/s
+
+4: 
+Variance u-component: 3.6077 m/s
+Variance v-component: 0.4688 m/s
+Variance w-component: 0.9629 m/s
+
+5:
+Variance u-component: 4.0494 m/s
+Variance v-component: 0.3638 m/s
+Variance w-component: 0.6934 m/s
+
+------Fast----------------------
+
+0:
+Variance u-component: 1.2815 m/s
+Variance v-component: 1.2422 m/s
+Variance w-component: 1.2433 m/s
+
+1:
+Variance u-component: 1.2923 m/s
+Variance v-component: 0.8680 m/s
+Variance w-component: 3.5134 m/s
+
+2:
+Variance u-component: 1.5001 m/s
+Variance v-component: 0.6139 m/s
+Variance w-component: 3.0964 m/s
+
+3:
+Variance u-component: 1.8266 m/s
+Variance v-component: 0.4730 m/s
+Variance w-component: 2.2294 m/s
+
+4:
+Variance u-component: 2.2160 m/s
+Variance v-component: 0.3867 m/s
+Variance w-component: 1.6863 m/s
+
+5:
+Variance u-component: 2.6419 m/s
+Variance v-component: 0.3289 m/s
+Variance w-component: 1.3437 m/s

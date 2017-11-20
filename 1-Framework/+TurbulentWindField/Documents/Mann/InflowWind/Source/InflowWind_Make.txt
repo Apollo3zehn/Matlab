@@ -1,0 +1,27 @@
+# This file is designed to show what the portions of makefiles that depend on InflowWind should contain.
+# >> we should add some text that says when it was last updated...
+
+
+
+   # Source files.
+IfW_SOURCES =           \
+	SharedInflowDefs.f90 \
+	HHWind.f90           \
+	FFWind.f90           \
+	HAWCWind.f90         \
+	FDWind.f90           \
+	CTWind.f90           \
+	UserWind.f90         \
+	InflowWindMod.f90
+
+
+
+   #  Dependency rules.
+SharedInflowDefs.f90               NWTC_Library.obj
+HHWind.obj:                        SharedInflowDefs.obj
+FFWind.obj:                        SharedInflowDefs.obj
+HAWCWind.obj:                      SharedInflowDefs.obj
+FDWind.obj:                        SharedInflowDefs.obj
+CTWind.obj:                        SharedInflowDefs.obj
+UserWind.obj:                      SharedInflowDefs.obj
+InflowWindMod.obj:                 SharedInflowDefs.obj  HHWind.obj  FFWind.obj  HAWCWind.obj  FDWind.obj  CTWind.obj  UserWind.obj
