@@ -1,3 +1,0 @@
-ArcFilesWin.txt
-TestRoutines/Matlab/InflowWind_mex.mexw32
-
