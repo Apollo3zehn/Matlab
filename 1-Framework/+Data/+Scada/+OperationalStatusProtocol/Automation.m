@@ -3,7 +3,7 @@ function [] = Automation()
 clc
 clear
 
-FileInfoList                = FileInformation.GetFileInformations('M:\Data Analysis\TestUmgebung_NDE\8MW\Sites\Bremerhaven_statistics\Eisansatz_dataexplorer', 'csv', true);
+FileInfoList                = FileInformation.GetFileInformations('C:\Users\vwilms\Desktop\Neuer Ordner', 'csv', true);
 FileCount                   = length(FileInfoList);
 
 Display.Headline('Scada.ToMat')
@@ -16,8 +16,7 @@ for FileNumber = 1 : FileCount
     
     Display.ProgressStatus('file', FileNumber, FileCount, StopWatch.ElapsedTime, 0);
     
-    FileInfo.OutputPath = [AV07.Scada.DataDirectory '\' FileInfo.Name];
-    
+    FileInfo.OutputPath = ['C:\Users\vwilms\Desktop\' FileInfo.Name];
     Data.Scada.OperationalStatusProtocol.ToMat(FileInfo);
     
 end

@@ -9,8 +9,8 @@ classdef HdfDataProvider < handle
         
         function this = HdfDataProvider(baseDirectoryPath)
             
-            NET.addAssembly(fullfile(pwd, '1-Framework\External\OneDas.Hdf.Types', 'OneDas.Hdf.Types.dll'));
-            NET.addAssembly(fullfile(pwd, '1-Framework\External\OneDas.Hdf.Types', 'HDF.PInvoke.dll'));
+            NET.addAssembly(fullfile(pwd, '2-ThirdParty\OneDas.Hdf.Types\', 'OneDas.Hdf.Types.dll'));
+            NET.addAssembly(fullfile(pwd, '2-ThirdParty\OneDas.Hdf.Types\', 'HDF.PInvoke.dll'));
            
             import HDF.*
             import HDF.PInvoke.*
@@ -18,7 +18,7 @@ classdef HdfDataProvider < handle
             if ~exist(baseDirectoryPath, 'dir')
                 error('directory does not exist')
             end
-                       
+                           
             this.sourceFileId    = PInvoke.H5F.open(fullfile(baseDirectoryPath, 'VDS.h5'), H5F.ACC_RDONLY);
 %             this.sourceFileId    = PInvoke.H5F.open(fullfile(baseDirectoryPath, 'VDS', '2017-03.h5'), H5F.ACC_RDONLY);
            
@@ -47,9 +47,9 @@ classdef HdfDataProvider < handle
         
         function datasetInfo = LoadDataset(this, datasetGroupPath, datasetName, variableName, dateTimeBegin, dateTimeEnd, varargin)
 
-            import Adwen.Mdas.Hdf.*
             import HDF.*
             import HDF.PInvoke.*
+            import OneDas.Hdf.IO.*
             
             % settings
             datasetNamePartSet  = strsplit(datasetName, '_');
@@ -83,7 +83,7 @@ classdef HdfDataProvider < handle
             end 
 
             %
-            [start, stride, block, count]   = Data.HDF.Helper.GetHyperslab(datetime(2000, 01, 01, 'TimeZone', 'UTC'), datetime(2030, 01, 01, 'TimeZone', 'UTC'), dateTimeBegin, dateTimeEnd, sampleRate);
+            [start, stride, block, count]   = Data.HDF.Helper.GetHyperslab(datetime(2017, 01, 01, 'TimeZone', 'UTC'), datetime(2030, 01, 01, 'TimeZone', 'UTC'), dateTimeBegin, dateTimeEnd, sampleRate);
             
             if now < datenum(2017, 11, 01)
                 start = bitand(uint64(start), uint64(hex2dec('FFFFFFFF')));
@@ -92,20 +92,20 @@ classdef HdfDataProvider < handle
                 this.ShowWarning('Please check if HDF 32/64 bit problem for virtual datasets still exists.');
             end
             
-            if ~HdfHelper.CheckLinkExists(this.sourceFileId, [datasetGroupPath '/' datasetName])
+            if ~IOHelper.CheckLinkExists(this.sourceFileId, [datasetGroupPath '/' datasetName])
                 error(['Dataset ' [datasetGroupPath '/' datasetName] ' does not exist.'])
             end   
             
-            rawData                         = HdfHelper.ReadDataset(this.sourceFileId, [datasetGroupPath '/' datasetName], start, stride, block, count);          
+            rawData                         = IOHelper.ReadDataset(this.sourceFileId, [datasetGroupPath '/' datasetName], start, stride, block, count);          
             datasetInfo.Dataset             = double(rawData).';
            
             if returnRawData
                 datasetInfo.RawDataset      = datasetInfo.Dataset;
             end
 
-            if (HdfHelper.CheckLinkExists(this.sourceFileId, [datasetGroupPath '/' datasetName_status]))
+            if (IOHelper.CheckLinkExists(this.sourceFileId, [datasetGroupPath '/' datasetName_status]))
                 
-                rawData_status                  = HdfHelper.ReadDataset(this.sourceFileId, [datasetGroupPath '/' datasetName_status], start, stride, block, count);
+                rawData_status              = IOHelper.ReadDataset(this.sourceFileId, [datasetGroupPath '/' datasetName_status], start, stride, block, count);
                 
                 if filterData
                     datasetInfo.Dataset(~logical(rawData_status)) = NaN;
@@ -115,7 +115,7 @@ classdef HdfDataProvider < handle
             
             % name set
             groupId                         = PInvoke.H5G.open(this.sourceFileId, datasetGroupPath);
-            datasetInfo.NameSet             = NET.ConvertType(HdfHelper.ReadAttribute(groupId, 'name_set'));
+            datasetInfo.NameSet             = NET.Convert(IOHelper.ReadAttribute(groupId, 'name_set'));
             PInvoke.H5D.close(groupId);
             
             % unit
@@ -123,7 +123,7 @@ classdef HdfDataProvider < handle
 
                 try
                     groupId                             = PInvoke.H5G.open(this.vdsMetaFileId, datasetGroupPath);
-                    datasetInfo.Unit                    = NET.ConvertType(HdfHelper.ReadAttribute(groupId, 'unit'));
+                    datasetInfo.Unit                    = NET.Convert(IOHelper.ReadAttribute(groupId, 'unit'));
                     PInvoke.H5G.close(groupId);
                 catch ex
                     this.ShowWarning(ex)
@@ -136,7 +136,7 @@ classdef HdfDataProvider < handle
 
                 try
                     groupId                             = PInvoke.H5G.open(this.vdsMetaFileId, datasetGroupPath);
-                    datasetInfo.TransferFunctionSet     = NET.Convert(HdfHelper.ReadAttribute(groupId, 'transfer_function_set'));
+                    datasetInfo.TransferFunctionSet     = NET.Convert(IOHelper.ReadAttribute(groupId, 'transfer_function_set'));
                     
                     for i = numel(datasetInfo.TransferFunctionSet)
 
@@ -167,8 +167,7 @@ classdef HdfDataProvider < handle
         
         function [data, map, info] = LoadDatasets(this, campaignPath, variableNameSet, datasetNameSet, dateTimeBegin, dateTimeEnd, varargin)
 
-            import System.Linq.*
-            import Adwen.Mdas.Hdf.*
+            import OneDas.Hdf.Core.*
             import HDF.*
             import HDF.PInvoke.*
             
@@ -186,7 +185,7 @@ classdef HdfDataProvider < handle
                     error('could not open group')
                 end
      
-                campaignInfo = NET.Convert(HdfHelper.GetCampaignInfo(this.sourceFileId, campaignPath));               
+                campaignInfo = GeneralHelper.GetCampaignInfo(this.sourceFileId, false, campaignPath);               
                 campaignInfoSet.(fieldName) = campaignInfo;    
                 
                 PInvoke.H5G.close(groupId);
@@ -202,8 +201,24 @@ classdef HdfDataProvider < handle
             end
             
             for i = size(variableNameSet, 1) : -1 : 1
-                guid = this.GetGuid(campaignInfo, variableNameSet{i});
+                
+                [name, index]   = this.SplitVariableName(variableNameSet{i});
+                guidSet         = NET.Convert(GeneralHelper.GetVariableGuids(campaignInfo, name));
+                
+                if (numel(guidSet)) > 1                  
+                                      
+                    if (index == 0)
+                        error('Variable ''%s'' is not unique. Consider adding a selector to the variable name. Example: ''%s(2)''.', variableNameSet{i}, variableNameSet{i});
+                    end
+                    
+                    guid = char(guidSet{index});
+                    
+                else
+                    guid = char(guidSet);
+                end
+                                   
                 data(i) = this.LoadDataset([campaignPath '/' guid], datasetNameSet{i}, variableNameSet{i}, dateTimeBegin, dateTimeEnd, varargin);
+                
             end
             
             map = containers.Map(variableNameSet, 1 : numel(variableNameSet));
@@ -213,13 +228,25 @@ classdef HdfDataProvider < handle
         function guid = GetGuid(~, campaignInfo, variableName)
                                   
             for variableInfo = campaignInfo.VariableInfoSet
-                if sum(ismember(variableName, variableInfo.VariableNameSet)) > 0
+                if sum(strcmp(variableInfo.VariableNameSet, variableName)) > 0
                   guid = variableInfo.Name;
                   return
                 end
             end
                    
-            error(sprintf('no variable named ''%s'' found', variableName));
+            error('no variable named ''%s'' found', variableName);
+            
+        end
+        
+        function [name, index] = SplitVariableName(~, variableInfo)
+            
+            index   = 0;
+            parts   = strsplit(variableInfo, {'(', ')'});
+            name    = char(parts(1));
+            
+            if numel(parts) == 3
+                index = str2double(parts(2));
+            end
             
         end
         
@@ -228,7 +255,7 @@ classdef HdfDataProvider < handle
             if isa(message, 'NET.NetException')
                 message = char(message.ExceptionObject.Message);
             elseif isa(message, 'MException')
-                message = message.Message;
+                message = message.message;
             elseif ischar(class(message))
                 message = message;
             else

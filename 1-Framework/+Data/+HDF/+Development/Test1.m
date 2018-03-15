@@ -1,18 +1,26 @@
 clc
-clear
 close all
 
-dateTimeBegin           = datetime(2017, 07, 01, 0, 0, 0, 'TimeZone', 'UTC');
-dateTimeEnd             = datetime(2017, 09, 02, 0, 0, 0, 'TimeZone', 'UTC');
+AH(1) = subplot(4, 2, 1);
+plot(W1_004_BF_Windgeschwindigkeit_1.dataset_100_Hz ./ 10)
+ylabel('wind speed in m/s')
 
-hdfDataProvider         = Data.HDF.HdfDataProvider('D:\DATABASE');
-variableNameSet         = {'W1_004_BF_Windgeschwindigkeit_1'};  
-datasetNameSet          = {'600 s_mean'};
-dataInfoSet             = hdfDataProvider.LoadDatasets('/LEHE/LEHE03/GENERAL_DAQ', variableNameSet, datasetNameSet, dateTimeBegin, dateTimeEnd);
+AH(2) = subplot(4, 2, 2);
+plot(W1_WCX_155_Achse_1_angular_encoder_RCA.dataset_100_Hz ./ 10)
 
-plot(dataInfoSet(1).Dataset);
-% title(strrep(dataInfoSet(1).NameSet(1), '_', '\_'));
-% ylabel(dataInfoSet(1).Unit(1));
+AH(3) = subplot(4, 2, 3);
+plot(W1_WCX_152_Achse_1_blade_bearing_RCA.dataset_100_Hz)
 
-% ylim([0 50])
-% grid on
+AH(4) = subplot(4, 2, 4);
+plot(W1_WCX_156_Achse_2_angular_encoder_RCA.dataset_100_Hz ./ 10)
+
+AH(5) = subplot(4, 2, 5);
+plot(W1_WCX_153_Achse_2_blade_bearing_RCA.dataset_100_Hz)
+
+AH(6) = subplot(4, 2, 6);
+plot(W1_WCX_157_Achse_3_angular_encoder_RCA.dataset_100_Hz ./ 10)
+
+AH(7) = subplot(4, 2, 7);
+plot(W1_WCX_154_Achse_3_blade_bearing_RCA.dataset_100_Hz)
+
+linkaxes(AH, 'x')

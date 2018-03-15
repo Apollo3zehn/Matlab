@@ -4,27 +4,22 @@ function ToMat(FileInfo)
       
         Convert.FileCommaToDots(FileInfo.Path);
    
-        FileID	= fopen(FileInfo.Path, 'r');
-
-        FormatSpec  = repmat('%s', [1 22]);
-        Headlines   = textscan(FileID, FormatSpec, 1, 'Delimiter', ';', 'HeaderLines', 2, 'ReturnOnError', false, 'MultipleDelimsAsOne', true);
-        Headlines   = cellfun(@(x) char(x), Headlines, 'UniformOutput', false); 
-        Headlines   = Convert.ToProperFieldName(Headlines);
-
-        FormatSpec  = '%2f.%2f.%4f %2f:%2f:%2f %2f.%2f.%4f %2f:%2f:%2f %f %s %f %s %s %s %s %s %f %f %s %f %f %f %f %f %f %f';
-        ScadaData  	= textscan(FileID, FormatSpec, 'Delimiter', ';', 'HeaderLines', 2, 'ReturnOnError', false);
-        ScadaData 	= [datenum(ScadaData{:, 3}, ScadaData{:, 2}, ScadaData{:, 1}, ScadaData{:, 4}, ScadaData{:, 5}, ScadaData{:, 6}) ...
-                       datenum(ScadaData{:, 9}, ScadaData{:, 8}, ScadaData{:, 7}, ScadaData{:, 10}, ScadaData{:, 11}, ScadaData{:, 12}) ...
-                       ScadaData(:, 13 : end)];
-        Headlines   = {Headlines{1} Headlines{3} Headlines{5 : end}};
-                   
-        fclose(FileID);
-
-        ScadaData 	= cell2struct(ScadaData, Headlines, 2);
+        ScadaData               = readtable(FileInfo.Path);
+        
+        DateBegin               = textscan(strjoin(ScadaData{:, 1}, '\n'), '%2f.%2f.%4f');
+        TimeBegin               = textscan(strjoin(ScadaData{:, 2}, '\n'), '%2f:%2f:%2f');
+        ScadaData.DateTimeBegin = datenum(DateBegin{:, 3}, DateBegin{:, 2}, DateBegin{:, 1}, TimeBegin{:, 1}, TimeBegin{:, 2}, TimeBegin{:, 3});
+        
+        DateEnd                 = textscan(strjoin(ScadaData{:, 3}, '\n'), '%2f.%2f.%4f');
+        TimeEnd                 = textscan(strjoin(ScadaData{:, 4}, '\n'), '%2f:%2f:%2f');
+        ScadaData.DateTimeEnd   = datenum(DateEnd{:, 3}, DateEnd{:, 2}, DateEnd{:, 1}, TimeEnd{:, 1}, TimeEnd{:, 2}, TimeEnd{:, 3});
+              
+        ScadaData               = Data.Scada.OperationalStatusProtocol.To10MinuteValues(ScadaData); % optional
         
         Directory.CreateByFilePath(FileInfo.OutputPath)
 
         save([FileInfo.OutputPath '.mat'], 'ScadaData', '-mat');
+        writetable(ScadaData, [FileInfo.OutputPath '.csv'], 'delimiter', ';');
         Display.Text(['Saved file ''' FileInfo.OutputPath '.mat''.'])
 
     catch ex

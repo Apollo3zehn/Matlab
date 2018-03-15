@@ -1,24 +1,71 @@
 function output = Convert(input)
+    
+    isArray = false;
 
-    output = [];
+    if ismethod(input, 'GetType') && input.GetType.IsArray
+       isArray = true;
+    elseif ismethod(input, 'ToArray')
+       input = input.ToArray(); 
+       isArray = true;
+    end
 
-    for i = 1 : numel(input)
-
-        if input.GetType.IsArray
-            if (input.Length >= i)
+    switch true
+            
+        case isnumeric(input)
+            output = double(input);
+        
+        case islogical(input)
+            output = input;
+            
+        case isa(input, 'System.String')
+            output = char(input);
+                   
+        case isa(input, 'System.String[]')
+            output = cell(input).'; 
+            
+        case isArray
+            
+            count = input.Length;
+            
+            for i = count : -1 : 1
+                
                 currentElement = input(i);
-            else
-                return
+
+                if count == 1
+                    output = NET.Convert(currentElement);
+                else
+                    output(i) = NET.Convert(currentElement);
+                end  
+
+            end 
+            
+        case isa(input, 'System.DateTime')
+            output = char(input.ToString());  
+            
+        case NET.IsDictionary(input)
+            output = NET.ConvertDictionary(input);    
+                       
+        case NET.IsStruct(input) | NET.IsClass(input)
+            
+            for fieldName = fieldnames(input).'              
+            
+                fieldName = char(fieldName);
+
+                if (strcmp(fieldName, 'Parent'))
+                    continue    
+                end   
+               
+                output.(fieldName) = NET.Convert(input.(fieldName));
+            
             end
-        else
-            currentElement = input;
-        end
-        
-        for fieldName = fieldnames(currentElement).'              
-            fieldName = char(fieldName);
-            output(i).(fieldName) = NET.ConvertType(currentElement.(fieldName));
-        end
-        
+
+        otherwise
+            error('not implemented')
+            
+    end
+    
+    if ~exist('output', 'var')
+        output = [];
     end
 
 end
