@@ -4,12 +4,12 @@ close all
 
 %%
 
-BasePath = 'C:\Users\vwilms\Desktop\Adwen.Scada\Adwen.Scada\bin\Release\';
-NET.addAssembly([BasePath 'Adwen.Scada.dll']);
+BasePath = 'C:\Users\vwilms\Desktop\Company.Scada\Company.Scada\bin\Release\';
+NET.addAssembly([BasePath 'Company.Scada.dll']);
 
 %%
 
-ScadaConnection = Adwen.Scada.ScadaConnection('VWilms', 'janosch1');
+ScadaConnection = Company.Scada.ScadaConnection('username', 'password');
 TenMinuteValues = ScadaConnection.GetTenMinuteValues(1, 21, System.DateTime(2016, 10, 01), System.DateTime.Now, 'WEA003');
 TenMinuteValues = double(TenMinuteValues);
 
