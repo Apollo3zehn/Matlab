@@ -7,8 +7,7 @@ close all
 %source = '5cd9b7a6-1018-43a5-834d-33dd9e8a796b';
 source = 'bb8073e1-7836-4a53-a296-7280821c14c3';
 
-%path = '/Adwen/Validation/MDAS Prototype/';
-path = '/ET_Control_test_bench/Simulation/MDAS_prototype_validation/';
+path = '';
 
 FileName = 'C:\Users\viwilms\Desktop\2017-01-31T00-00-00Z.h5';
 H5FileId = H5F.open(FileName);
