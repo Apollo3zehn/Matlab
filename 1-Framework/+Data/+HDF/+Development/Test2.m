@@ -2,25 +2,40 @@ clc
 clear
 close all
 
-datasetGroupPath        = '/TEST_BENCH/WK52/thermal_behavior/0be30c58-56b4-4904-9481-b2cea6652e8d';
-datasetName             = '1 Hz';
-dateTimeBegin           = datetime(2018, 03, 07, 'TimeZone', 'UTC');
-dateTimeEnd             = datetime(2018, 03, 10, 'TimeZone', 'UTC');
+dateTimeBegin           = datetime(2019, 04, 20, 'TimeZone', 'UTC');
+dateTimeEnd             = datetime(2019, 05, 02, 'TimeZone', 'UTC');
+hdfDataProvider         = Data.HDF.HdfDataProvider('M:\');
 
-% datasetGroupPath        = '/LEHE/LEHE03/GENERAL_DAQ/e5d628c9-3592-4245-92a5-deb3e678b788';
-% datasetName             = '100 Hz';
-% dateTimeBegin           = datenum(2017, 02, 16);
-% dateTimeEnd             = datenum(2017, 02, 17);
+setenv('HDF5_VDS_PREFIX', 'M:\')
 
-hdfDataProvider         = Data.HDF.HdfDataProvider('M:\DATABASE');
-
-variableNameSet         = {'P2090_EnableLTD(2)'
-                           };
+variableNameSet         = {'M0010_V2'
+                           'M0070_D1' 
+                           'M0390_PT_P'};
                        
-datasetNameSet          = {'25 Hz'};
-                          
+datasetNameSet          = {'1 s_mean'
+                           '1 s_mean_polar'
+                           '1 s_mean'};
+
 dataInfoSet             = hdfDataProvider.LoadDatasets('/AIRPORT/AD8_PROTOTYPE/GENERAL_DAQ', variableNameSet, datasetNameSet, dateTimeBegin, dateTimeEnd);
 
+subplot(3, 1, 1)
 plot(dataInfoSet(1).Dataset);
 title(strrep(dataInfoSet(1).NameSet(1), '_', '\_'));
-ylabel(dataInfoSet(1).Unit(1));
+ylabel(dataInfoSet(1).Unit);
+
+subplot(3, 1, 2)
+plot(dataInfoSet(2).Dataset);
+title(strrep(dataInfoSet(2).NameSet(1), '_', '\_'));
+ylabel(dataInfoSet(2).Unit);
+
+subplot(3, 1, 3)
+plot(dataInfoSet(3).Dataset / 1000 / 1000);
+title(strrep(dataInfoSet(3).NameSet(1), '_', '\_'));
+ylabel(dataInfoSet(3).Unit);
+
+
+
+
+
+
+

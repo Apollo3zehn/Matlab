@@ -20,7 +20,6 @@ classdef HdfDataProvider < handle
             end
                            
             this.sourceFileId    = PInvoke.H5F.open(fullfile(baseDirectoryPath, 'VDS.h5'), H5F.ACC_RDONLY);
-%             this.sourceFileId    = PInvoke.H5F.open(fullfile(baseDirectoryPath, 'VDS', '2017-03.h5'), H5F.ACC_RDONLY);
            
             if this.sourceFileId == -1 
                 error('could not open source file')
@@ -83,15 +82,8 @@ classdef HdfDataProvider < handle
             end 
 
             %
-            [start, stride, block, count]   = Data.HDF.Helper.GetHyperslab(datetime(2017, 01, 01, 'TimeZone', 'UTC'), datetime(2030, 01, 01, 'TimeZone', 'UTC'), dateTimeBegin, dateTimeEnd, sampleRate);
-            
-            if now < datenum(2017, 11, 01)
-                start = bitand(uint64(start), uint64(hex2dec('FFFFFFFF')));
-            else
-                start = bitand(uint64(start), uint64(hex2dec('FFFFFFFF')));
-                this.ShowWarning('Please check if HDF 32/64 bit problem for virtual datasets still exists.');
-            end
-            
+            [start, stride, block, count]   = Data.HDF.Helper.GetHyperslab(datetime(2000, 01, 01, 'TimeZone', 'UTC'), datetime(2030, 01, 01, 'TimeZone', 'UTC'), dateTimeBegin, dateTimeEnd, sampleRate);
+           
             if ~IOHelper.CheckLinkExists(this.sourceFileId, [datasetGroupPath '/' datasetName])
                 error(['Dataset ' [datasetGroupPath '/' datasetName] ' does not exist.'])
             end   
