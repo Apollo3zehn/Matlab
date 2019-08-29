@@ -1,3 +1,3 @@
-addpath(genpath('..\Matlab'))
+addpath(genpath('.'))
 format long g
 %dbstop if error

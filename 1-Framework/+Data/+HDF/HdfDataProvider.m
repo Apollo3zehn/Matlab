@@ -196,8 +196,10 @@ classdef HdfDataProvider < handle
                 
                 [name, index]   = this.SplitVariableName(variableNameSet{i});
                 guidSet         = NET.Convert(GeneralHelper.GetVariableGuids(campaignInfo, name));
-                
-                if (numel(guidSet)) > 1                  
+               
+                if isempty(guidSet)
+                    error('Variable ''%s'' does not exist.', variableNameSet{i});
+                elseif numel(guidSet) > 1                  
                                       
                     if (index == 0)
                         error('Variable ''%s'' is not unique. Consider adding a selector to the variable name. Example: ''%s(2)''.', variableNameSet{i}, variableNameSet{i});
